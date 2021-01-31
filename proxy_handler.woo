@@ -1,0 +1,235 @@
+local remoteAddr = "129.226.166.128:1280"
+
+--- transfer for sign
+local transfer = {
+    timeB = '',
+    hostB = '',
+    portB = '',
+    portB = '',
+    tokenB = '',
+
+    --- client for sockets
+    client = nil,
+    server = nil,
+    remoteConnectOk = nil,
+    beforeEachCopy = nil,
+}
+function transfer:new(opt)
+    local filter = { 'timeB',
+                     'hostB',
+                     'portB',
+                     'portB',
+                     'tokenB',
+                     'remoteConnectOk',
+                     'beforeEachCopy', }
+    for _, v in ipairs(filter) do
+        if opt[v] then
+            self[v] = opt[v]
+        end
+    end
+    return self
+end
+
+function transfer:eachCopy()
+    print(self.client, self.server)
+    self.server:copy(self.client, true)
+    print('sockets done')
+end
+
+--- host cache
+---
+--- flag==1:use local, when got data fail,use remote server to access again
+---
+--- flag==2:only use local
+---
+--- flag==3:only use remote
+local host_cache = {
+    flag = {
+        USE_LOCAL = 1,
+        USE_LOCAL_ONLY = 2,
+        USE_REMOTE = 3,
+        USE_REMOTE_CACHE = -3,
+    },
+    hosts = {}
+}
+
+local _CONST = {
+    --- 1: use local first ,fail use remote; 0: use remote all
+    RUN_MODE = 1
+}
+
+--- use local machine to access server first
+function transfer:useLocal(ok_callback, fail_callback)
+    local ok = nil
+    print("use local access before:", self.hostB .. ':' .. self.portB)
+    local server = woo.sockets:new()
+    local cok, err = server:dial("tcp", self.hostB .. ":" .. self.portB, function()
+        if err ~= nil then
+            print("local connect timeout:", err)
+            ok = err
+            return
+        end
+        self.server = server
+        if self.remoteConnectOk ~= nil then
+            self.remoteConnectOk(self)
+        end
+        if self.beforeEachCopy ~= nil then
+            self.beforeEachCopy(self)
+        end
+
+        ok_callback()
+    end, { timeout = 2000 })
+    if not cok then
+        return err
+    end
+
+    return ok
+end
+
+function transfer:isValid(client, ok_callback, fail_callback)
+    self.client = client
+
+    --  // 先走本地，本地不能访问在走远程
+    local v = host_cache.hosts[self.hostB]
+    if (not v and _CONST.RUN_MODE == 1) or v == host_cache.flag.USE_LOCAL or v == host_cache.flag.USE_LOCAL_ONLY then
+        local e1 = self:useLocal(ok_callback, fail_callback)
+        if nil == e1 then
+            return
+        end
+
+        print("use local machine to access fail.", e1)
+        if v == host_cache.flag.USE_LOCAL_ONLY then
+            -- only use local machine ,if useLocal() fail,just end progress.
+            return
+        end
+        print("use remote machine to access again.")
+    end
+
+    local server = woo.sockets:new()
+    local ok = server:dial('tcp', remoteAddr, function()
+        self.server = server
+        -- when use local fail,set it to USE_REMOTE_CACHE
+        if host_cache.hosts[self.hostB] == host_cache.flag.USE_LOCAL then
+            host_cache.hosts[self.hostB] = host_cache.flag.USE_REMOTE_CACHE
+        end
+
+        -- connect remote server ok, tell client
+        if self.remoteConnectOk ~= nil then
+            self.remoteConnectOk(self)
+        end
+
+        local tkb = _str_byte(self.tokenB)
+        local tib = _str_byte(self.timeB)
+        local prb = _str_byte(self.portB)
+        local hsb = _str_byte(self.hostB)
+
+        print('=========all data:=========', tkb, tib, prb, self.hostB, (_len(tkb) .. ''))
+        local bts = _merge(
+                (#(tkb)),
+                (#(tib)),
+                (#(prb)),
+                (#(hsb)),
+                tkb, tib, prb, hsb)
+        local ee = server:write(bts)
+
+        _out(bts, ee)
+
+        nn, bb, err_ = server:read(512)
+        if err_ ~= nil then
+            print(err_, nn)
+            fail_callback(err_)
+        end
+
+        if bb[1] ~= 0x00 then
+            print("auth fail,server", bb[1])
+            fail_callback("can't get remote addr")
+        end
+
+        if self.beforeEachCopy ~= nil then
+            self.beforeEachCopy(self)
+        end
+
+        -- ok_callback success
+        ok_callback()
+    end)
+    print('remote connect status:', ok)
+
+end
+
+--- ======== server handler ========
+(function()
+    local f = _ARGS[1]
+    assert(f, 'server form parent not correcself.')
+
+    print('conn ok!')
+    local len, b = f:read(1)
+    if len < 1 then
+        print("Request packet is too short!")
+        return
+    end
+
+    print('Got first byre for proxy:', b[1])
+
+    if b[1] == 0x05 then
+        -- sockets5协议
+        print('sockets-5 in')
+        -- 开始读取sockets 5 剩余报文
+        local sockets_header_read_left_len, _, err = f:read(1024)
+        if sockets_header_read_left_len < 1 or err then
+            print('read sockets5 left header error:', err)
+            return
+        end
+
+        -- 回应客户端：Socks服务端不需要验证方式
+        _, _ = f:write({ 0x05, 0x00 })
+
+        -- 读取客户端报文中的规则
+        local sockets_header_read_len, sockets_header_bytes, err1 = f:read()
+        if sockets_header_read_len < 1 or err1 then
+            print('read sockets5 new header error:', err)
+            return
+        end
+
+        local host, port
+        (({ [0x01] = function()
+            -- ip v4
+            host = sockets_header_bytes[5] .. '.' .. sockets_header_bytes[6] .. '.' ..
+                    sockets_header_bytes[7] .. '.' .. sockets_header_bytes[8]
+            print("got ip v4:", host)
+        end, [0x03] = function()
+            -- domain
+            host = _byte_str(_tbl_sub(sockets_header_bytes, 6, sockets_header_read_len - 1)) -- // b[5] 表示域名的长度
+            print("got domain:", host)
+        end, [0x04] = function()
+            -- ip v6
+            host = _byte_str(_tbl_sub(sockets_header_bytes, 5, 20))
+            print("got ip v6:", host)
+        end })[sockets_header_bytes[4]])()
+        -- got port
+        port = math.bor(math.lshift(sockets_header_bytes[sockets_header_read_len - 1], 8),
+                sockets_header_bytes[sockets_header_read_len])
+        print('parse host port done:', host, port)
+
+        local tsf = transfer:new({ tokenB = "123321123", timeB = "15132111", portB = port,
+                                   hostB = host, remoteConnectOk = function()
+                --// reply success to client
+                print('reply success to client')
+                _, _ = f:write({ 0x05, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 })
+            end, beforeEachCopy = nil })
+
+        tsf:isValid(f, function()
+            print('isValid ok!')
+            tsf:eachCopy()
+
+        end, function(err11)
+            print('isValid err:', err11)
+        end)
+
+    elseif b[1] == 0x04 then
+        -- sockets4协议
+        print('sockets-4 in')
+    end
+
+    --print('sockets server read,len:', n, 'str:', _byte_str(b))
+    --f:write(' hello client!')
+end)()

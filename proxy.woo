@@ -1,0 +1,10 @@
+
+--- ======== start sockets =========
+
+local ser = woo.sockets:new()
+
+ser:listen('tcp', '127.0.0.1:1288', function(f)
+   _run('example/proxy_handler.woo',f)
+end, function(err)
+    print(err)
+end)
