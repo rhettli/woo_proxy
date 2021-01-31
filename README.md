@@ -1,5 +1,5 @@
 # ？woo_proxy是个啥
->_woo_proxy 使用woo语言开发，完全开源
+>woo_proxy 使用woo语言开发，完全开源
 >大公司还好都有代理，可以直接访问github网页
 >个人，小公司当遇到紧急情况不能访问github,或者clone一个项目几kb每秒的速度，那真的时热锅上的蚂蚁了
 >woo_proxy实现socket4/5 http/s代理的代码逻辑，给需要的人使用，请勿用于非法用途
