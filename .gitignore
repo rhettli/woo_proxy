@@ -1,0 +1,9 @@
+.idea
+main
+.vscode
+go.sum
+.xml
+runtime/*
+vendor
+
+*.xml
