@@ -25,3 +25,7 @@ cd woo_proxy
 # 启动，启动后的sockets5代理端地址默认 127.0.0.1:1288
 woo proxy.woo
 ```
+## 4.设置proxy到系统
+>这里以deepin系统为例子
+
+![输入图片说明](https://gitee.com/oshine/woo_proxy/raw/master/deepin-set-proxy.png "在这里输入图片标题")
