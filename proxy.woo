@@ -5,8 +5,11 @@
 --- ======== start sockets =========
 
 local ser = woo.sockets:new()
+local addr = '127.0.0.1:1288'
 
-ser:listen('tcp', '127.0.0.1:1288', function(f)
+print('sockets5 proxy start on:', addr)
+
+ser:listen('tcp', addr, function(f)
     _run(_DIR .. '/proxy_handler.woo', f)
 end, function(err)
     print(err)
