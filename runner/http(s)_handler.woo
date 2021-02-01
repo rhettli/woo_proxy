@@ -1,0 +1,20 @@
+--处理http/s代理|handler for http/s proxy
+
+
+local dir = _ARGS[2]  -- 取父线程传来的目录
+local http_addr = _ARGS[3].remote_addr;
+
+require(dir .. '.runner.utils'); -- 导入工具包
+
+print('http running...')
+
+--- ======== http/s handler ========
+
+local ser = woo.sockets:new()
+
+ser:listen('tcp', http_addr, function(handler)
+    -- 启动一个线程来处理,启动线程需要绝对路径
+    _run(dir .. '/runner/http(s).woo', handler, dir, conf) -- 把sockets handler，目录位置传入线程中去
+end, function(err)
+    print(err)
+end)

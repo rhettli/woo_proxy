@@ -1,0 +1,116 @@
+local dir = _ARGS[2]  -- 取父线程传来的目录
+local conf = _ARGS[3]
+
+local getLineBytes = function(client)
+    local lineBts = {}
+    local b
+    while true do
+        n, b, _ = client:read(1)
+        if n > 0 then
+            lineBts = _merge(lineBts, b[1])
+            if b[1] == 10 then
+                break
+            end
+        else
+            break
+        end
+    end
+    return lineBts
+end;
+
+-- 获取线程传入的 sockets handler
+local client = _ARGS[1]
+assert(client, 'server form parent not correct.')
+
+local lineBts = getLineBytes(client)
+
+local body = _byte_str(lineBts)
+print("http(s) line 1", body)
+if _begin_with(body, "CONNECT") then
+
+    print("https proxy start...")
+    -- 读取剩余的头部信息，才能继续
+
+    n, leftBts, _ = client:read(1024 * 2)
+    if n > 0 then
+        lineBts = _merge(lineBts, leftBts)
+    end
+
+    local items = _str_split(body, " ")
+    local reply = "HTTP/1.1 200 Connection established\r\n\r\n"
+    if _str_index(items[3], "/1.1") ~= -1 then
+        -- reply += "Proxy-agent: 128-Proxy/1.1"
+    end
+    _, _ = client:write((reply))
+
+    local hp = _str_split(items[2], ":")
+    if len(hp) ~= 2 then
+        print("host and port format error", items[2])
+        return
+    end
+    local host = hp[1]
+    local port = hp[2]
+
+    local tsf = _include('runner.transfer'):new({
+        tokenB = "123321123", timeB = _time(), portB = port,
+        remoteAddr = conf.remote_addr, hostB = host, remoteConnectOk = function(t)
+        end })
+
+    tsf:isValid(client, function()
+        print('https isValid ok!')
+        _ = tsf:eachCopy()
+
+    end, function(err)
+        print('https isValid err:', err)
+    end)
+
+else
+
+    local hostLineBytes = lineBts
+    local hostBts;
+    -- 开始从http报文中获取host port|start get host and port form buffer of http header
+    while true do
+        b = getLineBytes(client);
+        if len(b) > 0 then
+            hostLineBytes = _merge(hostLineBytes, b)
+            if _str_index(string(b), "Host") ~= -1 then
+                hostBts = b
+                break
+            end
+        else
+            break
+        end
+    end
+
+    if len(hostBts) > 0 then
+        hostStr = _str_split(_byte_str(hostBts), " ")[2]
+        hp = _str_split(hostStr, ":")
+        local host, port
+        if len(hp) == 2 then
+            host = hp[2]
+            port = _rtrim(hp[3], "\r\n")
+        else
+            host = _rtrim(hp[2], "\r\n")
+            port = "80"
+        end
+
+        print("http host port:", (hostLineBytes), host, port)
+
+        local tsf = _include('runner.transfer'):new({
+            tokenB = "123321123", timeB = _time(), portB = port,
+            remoteAddr = conf.remote_addr, hostB = host, remoteConnectOk = function(t)
+            end, beforeEachCopy = function(t)
+                b2, _ = t.server:write(hostLineBytes)
+                fmt.Println("write http:", b2)
+            end })
+
+        tsf:isValid(client, function()
+            print('http isValid ok!')
+            _ = tsf:eachCopy()
+
+        end, function(err)
+            print('http isValid err:', err)
+        end)
+
+    end
+end

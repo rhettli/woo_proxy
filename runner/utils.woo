@@ -1,0 +1,7 @@
+--- 定义一个导入函数
+---@param p string@ package name
+_include = function(p)
+    local dir = _ARGS[2]
+    return require(dir .. '.' .. p)  -- _ARGS 全局变量只在 _run()线程中存在
+end
+

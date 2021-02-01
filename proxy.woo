@@ -4,15 +4,35 @@
 
 
 --- ======== start sockets =========
+---
+_out('===start with _DIR:===', _DIR, '\n')
+
+local conf = require(_DIR .. '.conf')
+
+_out('===start with conf:===', conf, '\n')
+
+local sockets_addr = conf.sockets_addr
+
+-- 启动线程开启 https proxy监听
+
+print('http/s proxy start on:', conf.http_addr)
+
+_run(_DIR .. '/runner/http(s)_handler.woo', 0, _DIR, conf) -- 把sockets handler，目录位置传入线程中去
+
+
+
+print('sockets(4/5) proxy start on:', sockets_addr)
 
 local ser = woo.sockets:new()
 
-local addr = '127.0.0.1:1288'
-
-print('sockets5 proxy start on:', addr)
-
-ser:listen('tcp', addr, function(f)
-    _run(_DIR .. '/proxy_handler.woo', f)
+-- 开启 tcp sockets proxy监听服务
+ser:listen('tcp', sockets_addr, function(handler)
+    -- 启动一个线程来处理,启动线程需要绝对路径
+    _run(_DIR .. '/runner/sockets_handler.woo', handler, _DIR, conf) -- 把sockets handler，目录位置传入线程中去
 end, function(err)
     print(err)
 end)
+
+-- sockets退出，http服务也退出
+os.exit(0)
+

@@ -1,0 +1,87 @@
+--- ======== sockets4 sockets5 处理程序|sockets(4/5) handler ========
+
+require(_ARGS[2] .. '.runner.utils'); -- 导入工具包
+local conf = _ARGS[3];
+
+print('sockets(4/5) handler in:')
+_out('_ARGS:=== ',_ARGS);
+
+(function()
+    -- 获取线程传入的 sockets handler
+    local handler = _ARGS[1]
+    assert(handler, 'server form parent not correct.')
+
+    print('conn ok!')
+    local len, b = handler:read(1)
+    if len < 1 then
+        print("Request packet is too short!")
+        return
+    end
+
+    print('Got first byre for proxy:', b[1])
+
+    if b[1] == 0x05 then
+        -- sockets5协议
+        print('sockets-5 in')
+        -- 开始读取sockets 5 剩余报文
+        local sockets_header_read_left_len, _, err = handler:read(1024)
+        if sockets_header_read_left_len < 1 or err then
+            print('read sockets5 left header error:', err)
+            return
+        end
+
+        -- 回应客户端：Socks服务端不需要验证方式
+        _, _ = handler:write({ 0x05, 0x00 })
+
+        -- 读取客户端报文中的规则
+        local sockets_header_read_len, sockets_header_bytes, err1 = handler:read()
+        if sockets_header_read_len < 1 or err1 then
+            print('read sockets5 new header error:', err)
+            return
+        end
+
+        local host, port
+        (({ [0x01] = function()
+            -- ip v4
+            host = sockets_header_bytes[5] .. '.' .. sockets_header_bytes[6] .. '.' ..
+                    sockets_header_bytes[7] .. '.' .. sockets_header_bytes[8]
+            print("got ip v4:", host)
+        end, [0x03] = function()
+            -- domain
+            host = _byte_str(_tbl_sub(sockets_header_bytes, 6, sockets_header_read_len - 1)) -- // b[5] 表示域名的长度
+            print("got domain:", host)
+        end, [0x04] = function()
+            -- ip v6
+            host = _byte_str(_tbl_sub(sockets_header_bytes, 5, 20))
+            print("got ip v6:", host)
+        end })[sockets_header_bytes[4]])()
+        -- got port
+        port = math.bor(math.lshift(sockets_header_bytes[sockets_header_read_len - 1], 8),
+                sockets_header_bytes[sockets_header_read_len])
+        print('parse host port done:', host, port)
+
+        print('======_include======',_include)
+        local tsf = _include('runner.transfer'):new({
+            tokenB = "123321123", timeB = _time(), portB = port, remoteAddr = conf.remote_addr,
+            hostB = host, remoteConnectOk = function()
+                --// reply success to client
+                print('reply success to client')
+                _, _ = handler:write({ 0x05, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 })
+            end, beforeEachCopy = nil })
+
+        tsf:isValid(handler, function()
+            print('sockets5 isValid ok!')
+            tsf:eachCopy()
+
+        end, function(err11)
+            print('sockets5 isValid err:', err11)
+        end)
+
+    elseif b[1] == 0x04 then
+        -- sockets4协议
+        print('sockets-4 in')
+    end
+
+    --print('sockets server read,len:', n, 'str:', _byte_str(b))
+    --f:write(' hello client!')
+end)()
