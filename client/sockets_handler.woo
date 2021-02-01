@@ -1,6 +1,6 @@
 --- ======== sockets4 sockets5 处理程序|sockets(4/5) handler ========
 
-require(_ARGS[2] .. '.runner.utils'); -- 导入工具包
+require(_ARGS[2] .. '.client.utils'); -- 导入工具包
 local conf = _ARGS[3];
 
 print('sockets(4/5) handler in:')
@@ -61,7 +61,7 @@ _out('_ARGS:=== ',_ARGS);
         print('parse host port done:', host, port)
 
         print('======_include======',_include)
-        local tsf = _include('runner.transfer'):new({
+        local tsf = _include('client.transfer'):new({
             tokenB = "123321123", timeB = _time(), portB = port, remoteAddr = conf.remote_addr,
             hostB = host, remoteConnectOk = function()
                 --// reply success to client

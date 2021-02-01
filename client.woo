@@ -17,7 +17,7 @@ local sockets_addr = conf.sockets_addr
 
 print('http/s proxy start on:', conf.http_addr)
 
-_run(_DIR .. '/runner/http(s)_handler.woo', 0, _DIR, conf) -- 把sockets handler，目录位置传入线程中去
+_run(_DIR .. '/client/http(s)_handler.woo', 0, _DIR, conf) -- 把sockets handler，目录位置传入线程中去
 
 
 
@@ -28,7 +28,7 @@ local ser = woo.sockets:new()
 -- 开启 tcp sockets proxy监听服务
 ser:listen('tcp', sockets_addr, function(handler)
     -- 启动一个线程来处理,启动线程需要绝对路径
-    _run(_DIR .. '/runner/sockets_handler.woo', handler, _DIR, conf) -- 把sockets handler，目录位置传入线程中去
+    _run(_DIR .. '/client/sockets_handler.woo', handler, _DIR, conf) -- 把sockets handler，目录位置传入线程中去
 end, function(err)
     print(err)
 end)

@@ -1,0 +1,18 @@
+-- program by liyanxi(李焱曦)/oshine
+-- power by woo
+-- woo_proxy server端，本服务在服务器上启动
+
+
+--- ======== start server =========
+
+local conf = require(_DIR .. '.conf')
+
+local ser = woo.sockets:new()
+
+-- 开启 tcp sockets proxy监听服务
+ser:listen('tcp', conf, function(handler)
+    -- 启动一个线程来处理,启动线程需要绝对路径
+    _run(_DIR .. '/server/server_handler.woo', handler, _DIR, conf)
+end, function(err)
+    print(err)
+end)

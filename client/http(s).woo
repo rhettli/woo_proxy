@@ -51,7 +51,7 @@ if _begin_with(body, "CONNECT") then
     local host = hp[1]
     local port = hp[2]
 
-    local tsf = _include('runner.transfer'):new({
+    local tsf = _include('client.transfer'):new({
         tokenB = "123321123", timeB = _time(), portB = port,
         remoteAddr = conf.remote_addr, hostB = host, remoteConnectOk = function(t)
         end })
@@ -96,7 +96,7 @@ else
 
         print("http host port:", (hostLineBytes), host, port)
 
-        local tsf = _include('runner.transfer'):new({
+        local tsf = _include('client.transfer'):new({
             tokenB = "123321123", timeB = _time(), portB = port,
             remoteAddr = conf.remote_addr, hostB = host, remoteConnectOk = function(t)
             end, beforeEachCopy = function(t)
