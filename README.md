@@ -31,5 +31,5 @@ woo client.woo
 ![输入图片说明](https://gitee.com/oshine/woo_proxy/raw/master/deepin-set-proxy.png "在这里输入图片标题")
 
 ## 5.具体用例介绍
->比如把 woo_proxy放到树梅派上面做一个固定服务，使用开机自启动服务：`woo woo_proxy/client.woo`
+>比如把 woo_proxy放到树梅派上面做一个固定服务，使用开机自启动服务：`woo woo_proxy/client.woo`,把这启动命令加入 /etc/rc.local 文件中
 >并且把树梅派的ip地址使用路由器固定住，这样就可以提供良好的服务了
