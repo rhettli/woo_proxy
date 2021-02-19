@@ -1,8 +1,10 @@
---name: oshine/woo_proxy
+---@author liyanxi
+--- oshine/woo_proxy
 
 return {
     package_name = "oshine/woo_proxy",
     platform = 'all' or 'windows drawn linux',
+    arch='all',
     title = 'tools for access github',
     remark = 'power by woo',
 

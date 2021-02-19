@@ -7,6 +7,9 @@
 ---
 _out('===start with _DIR:===', _DIR, '\n')
 
+_DIR = _DIR == '.' and './' or _DIR
+print('conf:==', _DIR .. 'conf')
+
 local conf = require(_DIR .. '.conf')
 
 _out('===start with conf:===', conf, '\n')

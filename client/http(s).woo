@@ -16,7 +16,7 @@ local getLineBytes = function(client)
         end
     end
     return lineBts
-end;
+end
 
 -- 获取线程传入的 sockets handler
 local client = _ARGS[1]
