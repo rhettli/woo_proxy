@@ -48,7 +48,7 @@ _out('_ARGS:=== ', _ARGS);
             print("got ip v4:", host)
         end, [0x03] = function()
             -- domain
-            host = _byte_str(_tbl_sub(sockets_header_bytes, 6, sockets_header_read_len - 1)) -- // b[5] 表示域名的长度
+            host = _byte_str(_tbl_sub(sockets_header_bytes, 6, sockets_header_read_len - 1)) -- // [5] 表示域名的长度
             print("got domain:", host)
         end, [0x04] = function()
             -- ip v6
