@@ -65,8 +65,7 @@ if _begin_with(body, "CONNECT") then
         return
     end
 
-    local host = hp[1]
-    local port = hp[2]
+    local host,port = hp[1],hp[2]
 
     local tsf = _include('client.transfer'):new({ 
         tokenB = "123321123", 
@@ -109,7 +108,7 @@ else
     if _len(hostBts) > 0 then
         print('host header:',_byte_str(hostBts))
         local hostStr = _str_split(_byte_str(hostBts), " ")[2]
-        hp = _str_split(hostStr, ":")
+        local hp = _str_split(hostStr, ":")
         local host, port
         if _len(hp) == 2 then
             host = hp[1]
