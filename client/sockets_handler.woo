@@ -132,7 +132,7 @@ _out('_ARGS:=== ', _ARGS);
                 local b = {}
                 b = _merge(b, 0, 0x5A)
                 b = _merge(b, s.port_b, s.address_b)
-                --b = append(b, byte((s.Port&0xFF00)>>8), byte(s.Port&0xFF))
+                -- b = append(b, byte((s.Port&0xFF00)>>8), byte(s.Port&0xFF))
                 print('reply success to client')
                 handler:write(b)
             end, beforeEachCopy = nil })
