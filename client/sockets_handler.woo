@@ -145,6 +145,12 @@ _out('_ARGS:=== ', _ARGS);
             print('sockets5 isValid err:', err11)
         end)
 
+    else  -- if b[1] == _ascii('C')
+        -- handler for http/s
+        print('===========handler for http/s============')
+
+        _ARGS[4]=b
+        _include('client.http(s)_single')
     end
 
     --handler:close()

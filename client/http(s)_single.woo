@@ -1,5 +1,7 @@
+
 local dir = _ARGS[2]  -- 取父线程传来的目录
 local conf = _ARGS[3]
+local firstByte = _ARGS[4]
 
 require(dir .. '.client.utils'); -- 导入工具包
 
@@ -24,26 +26,37 @@ end
 local client = _ARGS[1]
 assert(client, 'server form parent not correct.')
 
-local lineBts = getLineBytes(client)
+local lineBts =getLineBytes(client)
+if firstByte then
+    lineBts = _merge(firstByte,lineBts)
+end
 
 local body = _byte_str(lineBts)
 print("http(s) line 1", body)
 if _begin_with(body, "CONNECT") then
 
-    print("https proxy start...")
+    
     -- 读取剩余的头部信息，才能继续
 
-    n, leftBts, _ = client:read(1024 * 2)
+    local n, leftBts, _ = client:read(1024 * 5)
     if n > 0 then
         lineBts = _merge(lineBts, leftBts)
     end
+
+    print("https proxy start...,lineBts:",_byte_str(lineBts))
  
     local items = _str_split(body, " ")
-    local reply = {72,84,84,80,47,49,46,49,32,50,48,48,32,67,111,110,110,101,99,116,105,111,110,32,101,115,116,97,98,108,105,115,104,101,100,13,10,13,10}
+    local reply = {
+        72,84,84,80,47,49,46,49,32,50,
+        48,48,32,67,111,110,110,101,99,
+        116,105,111,110,32,101,115,116,
+        97,98,108,105,115,104,101,100,13,
+        10,13,10}
     -- "HTTP/1.1 200 Connection established\r\n\r\n"
     if _str_index(items[3], "/1.1") ~= -1 then
-         reply  = _merge(reply,_str_byte("Proxy-agent: WOO-Proxy/1.0")) 
+        --  reply  = _merge(reply,_str_byte("Proxy-agent: WOO-Proxy/1.0")) 
     end
+    
     client:write((reply))
 
     local hp = _str_split(items[2], ":")
@@ -51,6 +64,7 @@ if _begin_with(body, "CONNECT") then
         print("host and port format error", items[2])
         return
     end
+
     local host = hp[1]
     local port = hp[2]
 
@@ -72,12 +86,15 @@ if _begin_with(body, "CONNECT") then
     end)
 
 else
-
+    
     local hostLineBytes = lineBts
     local hostBts;
+
+    print('===http proxy start===',_byte_str(hostLineBytes))
+
     -- 开始从http报文中获取host port|start get host and port form buffer of http header
     while true do
-        b = getLineBytes(client);
+        local b = getLineBytes(client);
         if _len(b) > 0 then
             hostLineBytes = _merge(hostLineBytes, b)
             if _str_index(_byte_str(b), "Host") ~= -1 then
@@ -91,7 +108,7 @@ else
 
     if _len(hostBts) > 0 then
         print('host header:',_byte_str(hostBts))
-        hostStr = _str_split(_byte_str(hostBts), " ")[2]
+        local hostStr = _str_split(_byte_str(hostBts), " ")[2]
         hp = _str_split(hostStr, ":")
         local host, port
         if _len(hp) == 2 then

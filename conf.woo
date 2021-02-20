@@ -1,10 +1,9 @@
 return
 {
-    sockets_addr = '0.0.0.0:1288', -- sockets(4/5)代理监听端口
-    http_addr = '0.0.0.0:4433', -- http/s代理监听端口
+    ['http/s_sockets4/5_addr'] = '0.0.0.0:10000', -- sockets(4/5) 和 http/s代理监听端口
 
     remote_addr = '129.226.166.128:1280', -- 测试远程服务器ip，可以替换自己的ip服务
 
     remote_listen = '0.0.0.0:1280', -- 服务器ip，可以替换自己的ip服务
-    remote_psw = 'Password here.'  --  远程服务器连接psw
+    remote_psw = 'Password here.'  --  Todo 远程服务器连接psw,暂时无效
 }
