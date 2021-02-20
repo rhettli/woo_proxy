@@ -25,7 +25,7 @@ windows系统默认是sockets4，请不要直接使用系统级别代理，软�
 git clone https://gitee.com/oshine/woo_proxy.git --depth 1
 cd woo_proxy
 
-# 启动，启动后的sockets5代理端地址默认 127.0.0.1:1288
+# 启动，启动后的sockts4/5 和http/s代理端地址默认 127.0.0.1:10000
 woo client.woo
 ```
 
