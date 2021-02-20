@@ -1,14 +1,14 @@
 -- program by liyanxi(李焱曦)/oshine
 -- power by woo
 
+-- 注意，注释有的英文有的中文，是在不同是时间写代码导致的，隔一段时间写代码就会忘了使用中文注释，见解下
 
 
 --- ======== start sockets =========
----
+
 _out('===start with _DIR:===', _DIR, '\n')
 
 _DIR = _DIR == '.' and './' or _DIR
-print('conf:==', _DIR .. 'conf')
 
 local conf = require(_DIR .. '.conf')
 

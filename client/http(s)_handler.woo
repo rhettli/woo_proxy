@@ -2,9 +2,7 @@
 
 
 local dir = _ARGS[2]  -- 取父线程传来的目录
-local http_addr = _ARGS[3].remote_addr;
-
-require(dir .. '.client.utils'); -- 导入工具包
+local conf = _ARGS[3];
 
 print('http running...')
 
@@ -12,9 +10,12 @@ print('http running...')
 
 local ser = woo.sockets:new()
 
-ser:listen('tcp', http_addr, function(handler)
+ser:listen('tcp', conf.http_addr, function(handler)
     -- 启动一个线程来处理,启动线程需要绝对路径
+    print('http hander in...')
     _run(dir .. '/client/http(s).woo', handler, dir, conf) -- 把sockets handler，目录位置传入线程中去
 end, function(err)
     print(err)
 end)
+
+print('http proxy end...')
