@@ -1,4 +1,7 @@
+ _写在前面：本来是一个程序两个端口，一个端口监听sockets4/5 代理，一个监听http/s代理，但是win10的设置有点麻烦，防止兼容问题，现已改为一个端口监听，默认10000_ 
+
 # ？woo_proxy是个啥
+为了兼容windows，
 **woo_proxy 目前测试阶段，启动后就可以访问github开源网站，网络1MB，人多也可能很卡，公司需要使用请自行购买服务器**
 >woo_proxy 使用woo语言开发，完全开源；
 >目前大公司还好都有代理，可以直接访问github网页；
@@ -22,13 +25,20 @@ windows系统默认是sockets4，请不要直接使用系统级别代理，软�
 git clone https://gitee.com/oshine/woo_proxy.git --depth 1
 cd woo_proxy
 
-# 启动，启动后的sockets5代理端地址默认 127.0.0.1:1288
+# 启动，启动后的sockts4/5 和http/s代理端地址默认 127.0.0.1:10000
 woo client.woo
 ```
+
+### 3.9 写在前面，下方设置，在win10的时候，可能只适用于浏览器 和一般app，当需要cmd也生效请把http_proxy=127.0.0.1:10000 和 https_proxy=127.0.0.1:10000 加入系统环境变量
+
 ## 4.设置proxy到系统
->这里以deepin系统为例子
+1.deepin系统例子(注意下方的端口填写10000，默认，或者自己修改conf.woo文件内的端口)
 
 ![输入图片说明](https://gitee.com/oshine/woo_proxy/raw/master/deepin-set-proxy.png "在这里输入图片标题")
+
+2.win10系统例子
+
+![输入图片说明](https://gitee.com/oshine/woo_proxy/raw/master/win10-set-proxy.png "在这里输入图片标题")
 
 ## 5.具体用例介绍
 >比如把 woo_proxy放到树梅派上面做一个固定服务，使用开机自启动服务：`woo woo_proxy/client.woo`,把这启动命令加入 /etc/rc.local 文件中
