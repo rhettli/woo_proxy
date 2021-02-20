@@ -51,12 +51,12 @@ if _begin_with(body, "CONNECT") then
         48,48,32,67,111,110,110,101,99,
         116,105,111,110,32,101,115,116,
         97,98,108,105,115,104,101,100,13,
-        10,13,10}
-    -- "HTTP/1.1 200 Connection established\r\n\r\n"
+        }
+    -- "HTTP/1.1 200 Connection established\r"
     if _str_index(items[3], "/1.1") ~= -1 then
-        --  reply  = _merge(reply,_str_byte("Proxy-agent: WOO-Proxy/1.0")) 
+         reply  = _merge(reply,_str_byte("Proxy-agent: WOO-Proxy/1.0\r\n\r\n")) 
     end
-    
+
     client:write((reply))
 
     local hp = _str_split(items[2], ":")
