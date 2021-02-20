@@ -32,7 +32,3 @@ ser:listen('tcp', addr, function(handler)
 end, function(err)
     print(err)
 end)
-
--- sockets退出，http服务也退出
-os.exit(0)
-
