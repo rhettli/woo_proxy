@@ -1,4 +1,5 @@
 # ？woo_proxy是个啥
+为了兼容windows，
 **woo_proxy 目前测试阶段，启动后就可以访问github开源网站，网络1MB，人多也可能很卡，公司需要使用请自行购买服务器**
 >woo_proxy 使用woo语言开发，完全开源；
 >目前大公司还好都有代理，可以直接访问github网页；
@@ -26,9 +27,13 @@ cd woo_proxy
 woo client.woo
 ```
 ## 4.设置proxy到系统
->这里以deepin系统为例子
+1.deepin系统例子(注意下方的端口填写10000，默认，或者自己修改conf.woo文件内的端口)
 
 ![输入图片说明](https://gitee.com/oshine/woo_proxy/raw/master/deepin-set-proxy.png "在这里输入图片标题")
+
+2.win10系统例子
+
+![输入图片说明](https://gitee.com/oshine/woo_proxy/raw/master/win10-set-proxy.png "在这里输入图片标题")
 
 ## 5.具体用例介绍
 >比如把 woo_proxy放到树梅派上面做一个固定服务，使用开机自启动服务：`woo woo_proxy/client.woo`,把这启动命令加入 /etc/rc.local 文件中
