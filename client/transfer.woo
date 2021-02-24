@@ -32,7 +32,7 @@ function transfer:new(opt)
 end
 
 function transfer:eachCopy()
-    print(self.client, self.server)
+    -- print(self.client, self.server)
     self.server:copy(self.client, true)
     print('sockets done')
 end

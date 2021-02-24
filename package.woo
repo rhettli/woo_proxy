@@ -5,7 +5,13 @@ return {
     package_name = "oshine/woo_proxy",
     platform = 'all' or 'windows drawn linux',
     arch='all',
-    title = 'tools for access github',
+    title = 'tools for access github with sockts4/5 or http/s',
     remark = 'power by woo',
 
+    export_port='10000',
+    
+    self_install = 'global',
+
+    ---  run with : `woo woo_proxy` or `woo_proxy`
+    export_cmd='woo_proxy' ,
 }
