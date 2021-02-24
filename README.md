@@ -19,7 +19,7 @@
 ## 3.安装
 >1.安装前请先安装 [woo语言](https://www.kancloud.cn/oshine/passerbyab/2121071)
 
->2.安装前请先安装 [wpm包管理器](https://www.kancloud.cn/oshine/passerbyab/2121071) ，类似python的pip
+>2.安装前请先安装 [wpm包管理器](https://gitee.com/oshine/wpm) ，类似python的pip
 
 >3.全局安装woo_proxy命令行：`wpm install woo_proxy global`，global可省略，woo_proxy默认安装全局目录
 
