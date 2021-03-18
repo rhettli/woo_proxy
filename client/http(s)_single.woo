@@ -35,7 +35,7 @@ local body = _byte_str(lineBts)
 print("http(s) line 1", body)
 if _begin_with(body, "CONNECT") then
 
-    
+
     -- 读取剩余的头部信息，才能继续
 
     local n, leftBts, _ = client:read(1024 * 5)
@@ -44,7 +44,7 @@ if _begin_with(body, "CONNECT") then
     end
 
     print("https proxy start...,lineBts:",_byte_str(lineBts))
- 
+
     local items = _str_split(body, " ")
     local reply = {
         72,84,84,80,47,49,46,49,32,50,
@@ -54,7 +54,7 @@ if _begin_with(body, "CONNECT") then
         }
     -- "HTTP/1.1 200 Connection established\r"
     if _str_index(items[3], "/1.1") ~= -1 then
-         reply  = _merge(reply,_str_byte("Proxy-agent: WOO-Proxy/1.0\r\n\r\n")) 
+         reply  = _merge(reply,_str_byte("Proxy-agent: WOO-Proxy/1.0\r\n\r\n"))
     end
 
     client:write((reply))
@@ -67,12 +67,12 @@ if _begin_with(body, "CONNECT") then
 
     local host,port = hp[1],hp[2]
 
-    local tsf = _include('client.transfer'):new({ 
-        tokenB = "123321123", 
-        timeB = _time(), 
+    local tsf = _include('client.transfer'):new({
+        tokenB = "123321123",
+        timeB = _time(),
         portB = port,
-        remoteAddr = conf.remote_addr, 
-        hostB = host, 
+        remoteAddr = conf.remote_addr,
+        hostB = host,
         remoteConnectOk = function(t)
         end })
 
@@ -83,9 +83,10 @@ if _begin_with(body, "CONNECT") then
     end, function(err)
         print('https isValid err:', err)
     end)
+    tsf=nil
 
 else
-    
+
     local hostLineBytes = lineBts
     local hostBts;
 
@@ -121,7 +122,7 @@ else
         print("http host port:", (hostLineBytes), host, port)
 
         local tsf = _include('client.transfer'):new({
-             tokenB = "123321123", 
+             tokenB = "123321123",
              timeB = _time(),
              portB = port,
              remoteAddr = conf.remote_addr,
@@ -141,5 +142,6 @@ else
             print('http isValid err:', err)
         end)
 
+        tsf=nil
     end
 end

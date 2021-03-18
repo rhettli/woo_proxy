@@ -11,18 +11,19 @@ local transfer = {
     server = nil,
     remoteConnectOk = nil,
     beforeEachCopy = nil,
-
     remoteAddr = nil,
 }
 function transfer:new(opt)
-    local filter = { 'timeB',
-                     'hostB',
-                     'portB',
-                     'portB',
-                     'tokenB',
-                     'remoteAddr',
-                     'remoteConnectOk',
-                     'beforeEachCopy', }
+    local filter = {
+        'timeB',
+        'hostB',
+        'portB',
+        'portB',
+        'tokenB',
+        'remoteAddr',
+        'remoteConnectOk',
+        'beforeEachCopy',
+    }
     for _, v in ipairs(filter) do
         if opt[v] then
             self[v] = opt[v]
@@ -51,7 +52,7 @@ local host_cache = {
         USE_REMOTE = 3,
         USE_REMOTE_CACHE = -3,
     },
-    hosts = {}
+    hosts = { ['github.com'] = 3 }
 }
 
 local _CONST = {
@@ -105,6 +106,8 @@ function transfer:isValid(client, ok_callback, fail_callback)
             return
         end
         print("use remote machine to access again.")
+    else
+        print('use remote match:', v)
     end
 
     local server = woo.sockets:new()
@@ -125,12 +128,11 @@ function transfer:isValid(client, ok_callback, fail_callback)
         local prb = _str_byte(self.portB)
         local hsb = _str_byte(self.hostB)
 
-        local bts = _merge(
-                (#(tkb)),
-                (#(tib)),
-                (#(prb)),
-                (#(hsb)),
-                tkb, tib, prb, hsb)
+        local bts = _merge((#(tkb)),
+            (#(tib)),
+            (#(prb)),
+            (#(hsb)),
+            tkb, tib, prb, hsb)
         local ee = server:write(bts)
 
         --_out(bts, ee)
@@ -154,7 +156,6 @@ function transfer:isValid(client, ok_callback, fail_callback)
         ok_callback()
     end)
     print('remote connect status:', ok)
-
 end
 
 return transfer
