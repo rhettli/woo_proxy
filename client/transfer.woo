@@ -35,7 +35,7 @@ end
 function transfer:eachCopy()
     -- print(self.client, self.server)
     self.server:copy(self.client, true)
-    print('sockets done')
+    print('sockets done',self.hostB)
 end
 
 --- host cache
@@ -71,6 +71,7 @@ function transfer:useLocal(ok_callback, fail_callback)
             ok = err
             return
         end
+        print("use local access ok:", self.hostB .. ':' .. self.portB)
         self.server = server
         if self.remoteConnectOk ~= nil then
             self.remoteConnectOk(self)

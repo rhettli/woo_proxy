@@ -32,11 +32,12 @@ if firstByte then
 end
 
 local body = _byte_str(lineBts)
-print("http(s) line 1", body)
+
+--print("http(s) line 1", body)
+
 if _begin_with(body, "CONNECT") then
 
-
-    -- 读取剩余的头部信息，才能继续
+   -- 读取剩余的头部信息，才能继续
 
     local n, leftBts, _ = client:read(1024 * 5)
     if n > 0 then
@@ -77,7 +78,7 @@ if _begin_with(body, "CONNECT") then
         end })
 
     tsf:isValid(client, function()
-        print('https isValid ok!')
+        print('https isValid ok!',host,port)
         tsf:eachCopy()
 
     end, function(err)

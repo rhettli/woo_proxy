@@ -3,8 +3,8 @@
 require(_ARGS[2] .. '.client.utils'); -- 导入工具包
 local conf = _ARGS[3];
 
-print('sockets(4/5) handler in:')
-_out('_ARGS:=== ', _ARGS);
+print('sockets(4/5) handler in');
+--_out('_ARGS:=== ', _ARGS);
 
 (function()
     -- 获取线程传入的 sockets handler
@@ -18,7 +18,7 @@ _out('_ARGS:=== ', _ARGS);
         return
     end
 
-    print('Got first byre for proxy:', b[1])
+--    print('Got first byte for proxy:', b[1])
 
     if b[1] == 0x05 then
         -- sockets5协议
@@ -60,7 +60,8 @@ _out('_ARGS:=== ', _ARGS);
                 sockets_header_bytes[sockets_header_read_len])
         print('parse host port done:', host, port)
 
-        print('======_include======', _include)
+--        print('======_include======', _include)
+
         local tsf = _include('client.transfer'):new({
             tokenB = "123321123", timeB = _time(), portB = port, remoteAddr = conf.remote_addr,
             hostB = host, remoteConnectOk = function()
@@ -102,7 +103,6 @@ _out('_ARGS:=== ', _ARGS);
         s.port = _byte_str(b)
         s.port_b = (b)
 
-        --address := make([]byte, 4)
         local ll, bb = handler:read(4)
         if ll ~= 4 then
             return print("Socks4Request address is too short")
@@ -110,11 +110,6 @@ _out('_ARGS:=== ', _ARGS);
 
         s.address = _byte_str(bb)
         s.address_b = (bb)
-
-        -- sock4A
-        --if s.address.String() == "0.0.0.x" then
-        --    return errors.New("Unimplemented SOCK 4A protocol")
-        --end
 
         local n, b1 = handler:read(1)
         if n ~= 1 then
@@ -125,7 +120,8 @@ _out('_ARGS:=== ', _ARGS);
         end
 
         -- ok
-        print('======_include======', _include)
+--        print('======_include======', _include)
+
         local tsf = _include('client.transfer'):new({
             tokenB = "123321123", timeB = _time(), portB = s.port, remoteAddr = conf.remote_addr,
             hostB = s.address, remoteConnectOk = function()
