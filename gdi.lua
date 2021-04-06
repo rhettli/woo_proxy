@@ -11,7 +11,8 @@ local btn = woooooooer:newObj('button', {
     gragity,
     gravity_direction,
     speed = 5, -- 精灵播放速度
-    sprite_addr = woooooooer.load_sprite { path = './sprite/buttons', line_num = 10, line_from = 0, every_line_width = 10, cloum_num = 10 } --加载精灵，多张图片)
+    sprite_addr = woooooooer.load_sprite { path = './sprite/buttons', line_num = 10, line_from = 0, every_line_width = 10, cloum_num = 10 }
+    }) --加载精灵，多张图片)}
 btn:addEnent(woooooooer.on_mouse_hover, function(this)
     this.opacity = 0.5 -- 设置透明度一半
 end)
