@@ -63,12 +63,17 @@ print('sockets(4/5) handler in');
 --        print('======_include======', _include)
 
         local tsf = _include('client.transfer'):new({
-            tokenB = "123321123", timeB = _time(), portB = port, remoteAddr = conf.remote_addr,
-            hostB = host, remoteConnectOk = function()
+            tokenB = "123321123",
+            timeB = _time(),
+            portB = port,
+            remoteAddr = conf.remote_addr,
+            hostB = host,
+            remoteConnectOk = function()
                 --// reply success to client
                 print('reply success to client')
                 _, _ = handler:write({ 0x05, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 })
-            end, beforeEachCopy = nil })
+            end,
+            beforeEachCopy = nil })
 
         tsf:isValid(handler, function()
             print('sockets5 isValid ok!')

@@ -1,12 +1,7 @@
 -- program by liyanxi(李焱曦)/oshine
--- power by woo
+-- power by WOO
 
 -- 注意，注释有的英文有的中文，是在不同是时间写代码导致的，隔一段时间写代码就会忘了使用中文注释，见解下
-
-
---- ======== start sockets =========
-
--- _out('===start with _DIR:===', _DIR, '\n')
 
 _DIR = _DIR == '.' and './' or _DIR
 
@@ -14,21 +9,13 @@ local conf = require(_DIR .. '.conf')
 
 -- _out('===start with conf:===', conf, '\n')
 
-
--- 启动线程开启 https proxy监听
--- print('http/s proxy start on:', conf.http_addr)
--- _run(_DIR .. '/client/http(s)_handler.woo', 0, _DIR, conf) -- 把sockets handler，目录位置传入线程中去
-
-
 local addr = conf['http/s_sockets4/5_addr']
-print('sockets(4/5) and http/s proxy start on:', addr)
-
-local ser = woo.sockets:new()
+print('sockets(4/5) and http/s proxy start on:'.. addr..'yes ,all proxy on one port,juuuust capricious')
 
 -- 开启 tcp sockets proxy监听服务
-ser:listen('tcp', addr, function(handler)
-    -- 启动一个线程来处理,启动线程需要绝对路径
-    _run(_DIR .. '/client/sockets_handler.woo', handler, _DIR, conf) -- 把sockets handler，目录位置传入线程中去
+woo.sockets:new():listen('tcp', addr, function(handler)
+    -- 启动一个进程来处理,启动线程需要绝对路径，把sockets handler，目录位置传入线程中去
+    _run(_DIR .. '/client/sockets_handler.woo', handler, _DIR, conf)
 end, function(err)
     print(err)
 end)
