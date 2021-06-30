@@ -1,6 +1,6 @@
 return
 {
-    ['http/s_sockets4/5_addr'] = '0.0.0.0:10000', -- sockets(4/5) 和 http/s代理监听端口
+    ['http/s_sockets4/5_addr'] = '0.0.0.0:1188', -- sockets(4/5) 和 http/s代理监听端口
 
     remote_addr = '129.226.166.128:1280', -- 测试远程服务器ip，可以替换自己的ip服务
 

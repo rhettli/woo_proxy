@@ -124,10 +124,10 @@ function transfer:isValid(client, ok_callback, fail_callback)
             self.remoteConnectOk(self)
         end
 
-        local tkb = _str_byte(self.tokenB)
-        local tib = _str_byte(self.timeB)
-        local prb = _str_byte(self.portB)
-        local hsb = _str_byte(self.hostB)
+        local tkb = _bytes(self.tokenB)
+        local tib = _bytes(self.timeB)
+        local prb = _bytes(self.portB)
+        local hsb = _bytes(self.hostB)
 
         local bts = _merge((#(tkb)),
             (#(tib)),

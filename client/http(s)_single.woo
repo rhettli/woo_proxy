@@ -31,7 +31,7 @@ if firstByte then
     lineBts = _merge(firstByte,lineBts)
 end
 
-local body = _byte_str(lineBts)
+local body = _strs(lineBts)
 
 --print("http(s) line 1", body)
 
@@ -44,7 +44,7 @@ if _begin_with(body, "CONNECT") then
         lineBts = _merge(lineBts, leftBts)
     end
 
-    print("https proxy start...,lineBts:",_byte_str(lineBts))
+    print("https proxy start...,lineBts:",_strs(lineBts))
 
     local items = _str_split(body, " ")
     local reply = {
@@ -55,7 +55,7 @@ if _begin_with(body, "CONNECT") then
         }
     -- "HTTP/1.1 200 Connection established\r"
     if _str_index(items[3], "/1.1") ~= -1 then
-         reply  = _merge(reply,_str_byte("Proxy-agent: WOO-Proxy/1.0\r\n\r\n"))
+         reply  = _merge(reply,_bytes("Proxy-agent: WOO-Proxy/1.0\r\n\r\n"))
     end
 
     client:write((reply))
@@ -91,14 +91,14 @@ else
     local hostLineBytes = lineBts
     local hostBts;
 
-    print('===http proxy start===',_byte_str(hostLineBytes))
+    print('===http proxy start===',_strs(hostLineBytes))
 
     -- 开始从http报文中获取host port|start get host and port form buffer of http header
     while true do
         local b = getLineBytes(client);
         if _len(b) > 0 then
             hostLineBytes = _merge(hostLineBytes, b)
-            if _str_index(_byte_str(b), "Host") ~= -1 then
+            if _str_index(_strs(b), "Host") ~= -1 then
                 hostBts = b
                 break
             end
@@ -108,8 +108,8 @@ else
     end
 
     if _len(hostBts) > 0 then
-        print('host header:',_byte_str(hostBts))
-        local hostStr = _str_split(_byte_str(hostBts), " ")[2]
+        print('host header:',_strs(hostBts))
+        local hostStr = _str_split(_strs(hostBts), " ")[2]
         local hp = _str_split(hostStr, ":")
         local host, port
         if _len(hp) == 2 then
