@@ -12,7 +12,7 @@ local handler = _ARGS[1]
 assert(handler, 'server form parent not correct.')
 
 print('conn ok!')
-local len, b = handler:read(1)
+local len, b = handler:read(1) -- { 0x05 }
 if len < 1 then
     print("Request packet is too short!")
     return
@@ -34,7 +34,7 @@ if b[1] == 0x05 then
     _, _ = handler:write({ 0x05, 0x00 })
 
     -- 读取客户端报文中的规则
-    local sockets_header_read_len, sockets_header_bytes, err1 = handler:read()
+    local sockets_header_read_len, sockets_header_bytes, err1 = handler:read() -- 挂起了
     if sockets_header_read_len < 1 or err1 then
         print('read sockets5 new header error:', err)
         return
@@ -63,7 +63,7 @@ if b[1] == 0x05 then
     --        print('======_include======', _include)
 
     local tsf = _include('client.transfer'):new({
-        tokenB = "123321123",
+        tokenB = "123",
         timeB = _time(),
         portB = port,
         remoteAddr = conf.remote_addr,
@@ -75,12 +75,15 @@ if b[1] == 0x05 then
         end,
         beforeEachCopy = nil })
 
+    -- https://www.google.com
+
     tsf:isValid(handler, function()
         print('sockets5 isValid ok!')
         tsf:eachCopy()
 
     end, function(err11)
         print('sockets5 isValid err:', err11)
+        --os.exit(-1)
     end)
 
 elseif b[1] == 0x04 then

@@ -10,12 +10,12 @@ local conf = require(_DIR .. '.conf')
 -- _out('===start with conf:===', conf, '\n')
 
 local addr = conf['http/s_sockets4/5_addr']
-print('sockets(4/5) and http/s proxy start on:'.. addr..'yes ,all proxy on one port,juuuust capricious')
+print('sockets(4/5) and http/s proxy start on:'.. addr..' yes ,all proxy on one port,juuuust capricious')
 
 -- 开启 tcp sockets proxy监听服务
 woo.sockets:new():listen('tcp', addr, function(handler)
     print('client in...')
-    -- 启动一个进程来处理,启动线程需要绝对路径，把sockets handler，目录位置传入线程中去
+    -- 启动一个线程来处理,启动线程需要绝对路径，把sockets handler，目录位置传入线程中去
     _run(_DIR .. '/client/sockets_handler.woo', handler, _DIR, conf)
 end, function(err)
     print(err)

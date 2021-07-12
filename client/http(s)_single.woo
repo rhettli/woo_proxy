@@ -1,4 +1,3 @@
-
 local dir = _ARGS[2]  -- 取父线程传来的目录
 local conf = _ARGS[3]
 local firstByte = _ARGS[4]
@@ -7,12 +6,12 @@ require(dir .. '.client.utils'); -- 导入工具包
 
 local getLineBytes = function(client)
     local lineBts = {}
-    local b,n
+    local b, n
     while true do
         n, b, _ = client:read(1)
         if n > 0 then
             lineBts = _merge(lineBts, b[1])
-            if b[1] == 0xa then
+            if b[1] == 0x0a  then
                 break
             end
         else
@@ -26,9 +25,9 @@ end
 local client = _ARGS[1]
 assert(client, 'server form parent not correct.')
 
-local lineBts =getLineBytes(client)
+local lineBts = getLineBytes(client)
 if firstByte then
-    lineBts = _merge(firstByte,lineBts)
+    lineBts = _merge(firstByte, lineBts)
 end
 
 local body = _strs(lineBts)
@@ -37,36 +36,36 @@ local body = _strs(lineBts)
 
 if _begin_with(body, "CONNECT") then
 
-   -- 读取剩余的头部信息，才能继续
+    -- 读取剩余的头部信息，才能继续
 
     local n, leftBts, _ = client:read(1024 * 5)
     if n > 0 then
         lineBts = _merge(lineBts, leftBts)
     end
 
-    print("https proxy start...,lineBts:",_strs(lineBts))
+    print("https proxy start...,lineBts:", _strs(lineBts))
 
     local items = _str_split(body, " ")
     local reply = {
-        72,84,84,80,47,49,46,49,32,50,
-        48,48,32,67,111,110,110,101,99,
-        116,105,111,110,32,101,115,116,
-        97,98,108,105,115,104,101,100,13,
-        }
+        72, 84, 84, 80, 47, 49, 46, 49, 32, 50,
+        48, 48, 32, 67, 111, 110, 110, 101, 99,
+        116, 105, 111, 110, 32, 101, 115, 116,
+        97, 98, 108, 105, 115, 104, 101, 100, 13,
+    }
     -- "HTTP/1.1 200 Connection established\r"
     if _str_index(items[3], "/1.1") ~= -1 then
-         reply  = _merge(reply,_bytes("Proxy-agent: WOO-Proxy/1.0\r\n\r\n"))
+        reply = _merge(reply, _bytes("Proxy-agent: WOO-Proxy/1.0\r\n\r\n"))
     end
 
     client:write((reply))
 
     local hp = _str_split(items[2], ":")
     if _len(hp) ~= 2 then
-        print("host and port format error", items[2])
+        _out("host and port format error", hp)
         return
     end
 
-    local host,port = hp[1],hp[2]
+    local host, port = hp[1], hp[2]
 
     local tsf = _include('client.transfer'):new({
         tokenB = "123321123",
@@ -78,20 +77,20 @@ if _begin_with(body, "CONNECT") then
         end })
 
     tsf:isValid(client, function()
-        print('https isValid ok!',host,port)
+        print('https isValid ok!', host, port)
         tsf:eachCopy()
 
     end, function(err)
         print('https isValid err:', err)
     end)
-    tsf=nil
+    tsf = nil
 
 else
 
     local hostLineBytes = lineBts
     local hostBts;
 
-    print('===http proxy start===',_strs(hostLineBytes))
+    print('===http proxy start===', _strs(hostLineBytes))
 
     -- 开始从http报文中获取host port|start get host and port form buffer of http header
     while true do
@@ -108,7 +107,7 @@ else
     end
 
     if _len(hostBts) > 0 then
-        print('host header:',_strs(hostBts))
+        print('host header:', _strs(hostBts))
         local hostStr = _str_split(_strs(hostBts), " ")[2]
         local hp = _str_split(hostStr, ":")
         local host, port
@@ -123,14 +122,14 @@ else
         print("http host port:", (hostLineBytes), host, port)
 
         local tsf = _include('client.transfer'):new({
-             tokenB = "123321123",
-             timeB = _time(),
-             portB = port,
-             remoteAddr = conf.remote_addr,
-             hostB = host,
-             remoteConnectOk = function(t)
+            tokenB = "123321123",
+            timeB = _time(),
+            portB = port,
+            remoteAddr = conf.remote_addr,
+            hostB = host,
+            remoteConnectOk = function(t)
             end,
-             beforeEachCopy = function(t)
+            beforeEachCopy = function(t)
                 local b2, _ = t.server:write(hostLineBytes)
                 -- fmt.Println("write http:", b2)
             end })
@@ -143,6 +142,6 @@ else
             print('http isValid err:', err)
         end)
 
-        tsf=nil
+        tsf = nil
     end
 end

@@ -13,6 +13,7 @@ local transfer = {
     beforeEachCopy = nil,
     remoteAddr = nil,
 }
+
 function transfer:new(opt)
     local filter = {
         'timeB',
@@ -29,6 +30,7 @@ function transfer:new(opt)
             self[v] = opt[v]
         end
     end
+    _out('====',self)
     return self
 end
 
@@ -66,11 +68,7 @@ function transfer:useLocal(ok_callback, fail_callback)
     print("use local access before:", self.hostB .. ':' .. self.portB)
     local server = woo.sockets:new()
     local cok, err = server:dial("tcp", self.hostB .. ":" .. self.portB, function()
-        if err ~= nil then
-            print("local connect timeout:", err)
-            ok = err
-            return
-        end
+
         print("use local access ok:", self.hostB .. ':' .. self.portB)
         self.server = server
         if self.remoteConnectOk ~= nil then
@@ -83,11 +81,17 @@ function transfer:useLocal(ok_callback, fail_callback)
         ok_callback()
     end, { timeout = 2000 })
 
-    if not cok then
-        return err
+    if err ~= nil then
+        print("local connect timeout:", err)
+        ok = err
+        return ok
     end
 
-    return ok
+    --if not cok then
+    --    return err
+    --end
+    --
+    --return ok
 end
 
 function transfer:isValid(client, ok_callback, fail_callback)
@@ -106,13 +110,14 @@ function transfer:isValid(client, ok_callback, fail_callback)
             -- only use local machine ,if useLocal() fail,just end progress.
             return
         end
-        print("use remote machine to access again.")
+        print("use remote machine to access again.",self.remoteAddr)
     else
         print('use remote match:', v)
     end
 
     local server = woo.sockets:new()
     local ok = server:dial('tcp', self.remoteAddr, function()
+        print('remote access ok')
         self.server = server
         -- when use local fail,set it to USE_REMOTE_CACHE
         if host_cache.hosts[self.hostB] == host_cache.flag.USE_LOCAL then
@@ -142,11 +147,13 @@ function transfer:isValid(client, ok_callback, fail_callback)
         if err_ ~= nil then
             print(err_, nn)
             fail_callback(err_)
+            return
         end
 
         if bb[1] ~= 0x00 then
             print("auth fail,server", bb[1])
             fail_callback("can't get remote addr")
+            return
         end
 
         if self.beforeEachCopy ~= nil then
